@@ -27,6 +27,12 @@ ICE_VIDEOS_FOLDER = os.path.expanduser("./videos/ice")
 # Supported video formats
 SUPPORTED_FORMATS = ['mp4', 'webm', 'ogg']
 
+CATEGORY_FOLDERS = {
+    "normal": NORMAL_VIDEOS_FOLDER,
+    "ad": ADS_VIDEOS_FOLDER,
+    "ice": ICE_VIDEOS_FOLDER,
+}
+
 # Initialize video counts
 player_states = {
     1: {"name": None, "swipe_count": 0, "normal_count": 0, "last_videos": []},
@@ -283,6 +289,21 @@ def random_video(player_id):
     }, room="spectators")
 
     return jsonify({"video_url": f"/videos/{video_type}/{video}", "type": video_type})
+
+@app.route('/videos/<category>/list', methods=['GET'])
+def list_m3u8_files(category):
+    """Return a list of all .m3u8 files in the specified category folder."""
+    if category not in CATEGORY_FOLDERS:
+        return jsonify({"error": "Invalid category"}), 404
+
+    folder_path = CATEGORY_FOLDERS[category]
+    if not os.path.exists(folder_path):
+        return jsonify({"error": "Category folder not found"}), 404
+
+    m3u8_files = [
+        f for f in os.listdir(folder_path) if f.endswith(".m3u8")
+    ]
+    return jsonify(m3u8_files)
 
 @app.route('/videos/<folder>/<path:filename>')
 def serve_hls(folder, filename):
