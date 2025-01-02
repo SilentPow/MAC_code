@@ -3,63 +3,63 @@
         "game_name": "Swipe Master",
         "leaderboard": [
             {
+                "player_name": "Spag",
+                "score": 49,
+                "timestamp": "2025-01-02T12:19:15",
+                "rank": 1
+            },
+            {
                 "player_name": "Frost",
                 "score": 40,
                 "timestamp": "2025-01-01T22:04:13",
-                "rank": 1
+                "rank": 2
             },
             {
                 "player_name": "Spag",
                 "score": 37,
                 "timestamp": "2025-01-01T21:55:05",
-                "rank": 2
+                "rank": 3
             },
             {
                 "player_name": "Frost",
                 "score": 37,
                 "timestamp": "2025-01-02T00:14:13",
-                "rank": 3
+                "rank": 4
+            },
+            {
+                "player_name": "Frost",
+                "score": 35,
+                "timestamp": "2025-01-02T12:17:43",
+                "rank": 5
+            },
+            {
+                "player_name": "Frost",
+                "score": 35,
+                "timestamp": "2025-01-02T12:41:01",
+                "rank": 6
             },
             {
                 "player_name": "Frost",
                 "score": 34,
                 "timestamp": "2025-01-01T22:07:54",
-                "rank": 4
+                "rank": 7
             },
             {
                 "player_name": "s",
                 "score": 30,
                 "timestamp": "2025-01-01T21:40:08",
-                "rank": 5
-            },
-            {
-                "player_name": "Spag",
-                "score": 29,
-                "timestamp": "2025-01-02T00:09:29",
-                "rank": 6
-            },
-            {
-                "player_name": "Frost",
-                "score": 28,
-                "timestamp": "2025-01-02T00:03:21",
-                "rank": 7
-            },
-            {
-                "player_name": "spag",
-                "score": 26,
-                "timestamp": "2025-01-01T21:40:08",
                 "rank": 8
             },
             {
-                "player_name": "Spag",
-                "score": 24,
-                "timestamp": "2025-01-02T00:14:13",
+                "player_name": "Frost",
+                "score": 30,
+                "timestamp": "2025-01-02T12:04:23",
                 "rank": 9
             },
             {
-                "player_name": "spag",
-                "score": 23,
-                "timestamp": "2025-01-01T22:16:33",
+                "player_name": "Frost",
+                "score": 30,
+                "timestamp": "2025-01-02T12:04:56",
                 "rank": 10
             }
         ]

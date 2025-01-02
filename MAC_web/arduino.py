@@ -30,16 +30,16 @@ def open_valve(player):
     
     print("opening")
     if player == 1:
-        ser.write(b"OPEN1\n")
-        print("OPEN1\n")
-    else:
         ser.write(b"OPEN2\n")
         print("OPEN2\n")
+    else:
+        ser.write(b"OPEN1\n")
+        print("OPEN1\n")
 
 def close_valve(player):
     ser = get_serial_connection()
     print("closing")
     if player == 1:
-        ser.write(b"CLOSE1\n")
-    else:
         ser.write(b"CLOSE2\n")
+    else:
+        ser.write(b"CLOSE1\n")

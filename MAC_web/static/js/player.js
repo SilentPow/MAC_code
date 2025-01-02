@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let nextVideoType = null; // Store the URL of the next video
     let swipesDone = 0;
     let isLoading = false; // Prevent concurrent video loading
+    let videoReady = true; // Prevent swiping before video is ready
 
     
     videoPlayer.preload = "auto"; // Preload as much as possible
@@ -225,6 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
         try {
             isLoading = true; // Set loading state
+            videoReady = false; // Block interactions until video is ready
             // If no preloaded video or swipe type is not normal, fetch a new video
             console.log("Fetching a new video...");
             const response = await fetch(`/random_video/${playerId}`, {
@@ -240,15 +242,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
             videoUrl = data.video_url;
             currentVideoType = data.type;
+
+
             
     
-            console.log(`Loading video: ${videoUrl}`);
-            videoPlayer.src = videoUrl;
-            videoPlayer.load();
-    
-            console.log("Starting video playback...");
-            await videoPlayer.play(); // Wait for video playback to start
-            console.log("Video playback started.");
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoUrl);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    videoPlayer.play().then(() => {
+                        videoReady = true; // Allow interactions once video starts playing
+                    }).catch((error) => {
+                        console.error("Error playing video:", error);
+                    });
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = videoUrl;
+                videoPlayer.play().then(() => {
+                    videoReady = true; // Allow interactions once video starts playing
+                }).catch((error) => {
+                    console.error("Error playing video:", error);
+                });
+            } else {
+                throw new Error("HLS is not supported in this browser.");
+            }
     
     
             if (currentVideoType === "ad") {
@@ -265,9 +283,19 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMessage.style.display = "block";
             errorMessage.textContent = error.message;
         } finally {
+            //videoReady = true
             isLoading = false; // Reset loading state
         }
     }
+    
+    videoPlayer.addEventListener("ended", () => {
+        if (gameRunning) {
+            videoPlayer.currentTime = 0;
+            videoPlayer.play().catch((error) => {
+                console.error("Error replaying video:", error);
+            });
+        }
+    });
     
 
     videoPlayer.addEventListener("touchstart", (e) => {
@@ -275,7 +303,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     videoPlayer.addEventListener("touchend", async (e) => {
-        if (!gameRunning) return;
+        console.log(videoReady)
+        if (!gameRunning || !videoReady) return;
         const touchEndY = e.changedTouches[0].clientY;
         const swipeThreshold = 50;
 

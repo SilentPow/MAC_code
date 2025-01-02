@@ -1,4 +1,5 @@
-from flask import Flask, render_template, jsonify, send_from_directory, request, redirect, url_for
+from flask import Flask, render_template, jsonify, send_from_directory, request, redirect, url_for, send_file
+from flask import Response
 from flask_socketio import SocketIO, emit, join_room
 from arduino import open_valve, close_valve, get_serial_connection, close_serial
 import time
@@ -20,7 +21,6 @@ app.config["SERVER_NAME"] = "localhost:5000"
 
 # Paths to video folders
 NORMAL_VIDEOS_FOLDER = os.path.expanduser("./videos/normal")
-BOMB_VIDEOS_FOLDER = os.path.expanduser("./videos/bomb")
 ADS_VIDEOS_FOLDER = os.path.expanduser("./videos/ad")
 ICE_VIDEOS_FOLDER = os.path.expanduser("./videos/ice")
 
@@ -59,18 +59,21 @@ def get_video_list(folder):
         if f.split('.')[-1].lower() in SUPPORTED_FORMATS
     ]
 
-# Get video lists
-normal_videos = get_video_list(NORMAL_VIDEOS_FOLDER)
-bomb_videos = get_video_list(BOMB_VIDEOS_FOLDER)
-ads_videos = get_video_list(ADS_VIDEOS_FOLDER)
-ice_videos = get_video_list(ICE_VIDEOS_FOLDER)
-
 video_cache = {
-    "normal": normal_videos,
-    "bomb": bomb_videos,
-    "ad": ads_videos,
-    "ice": ice_videos,
+    "normal": [],
+    "ad": [],
+    "ice": []
 }
+
+# Populate video cache
+for folder_name, folder_path in {
+    "normal": NORMAL_VIDEOS_FOLDER,
+    "ad": ADS_VIDEOS_FOLDER,
+    "ice": ICE_VIDEOS_FOLDER,
+}.items():
+    if os.path.exists(folder_path):
+        video_cache[folder_name] = [
+            f for f in os.listdir(folder_path) if f.endswith(".m3u8")]
 
 def get_cached_video_list(video_type):
     return video_cache.get(video_type, [])
@@ -80,6 +83,7 @@ def start_game_timer():
     with app.app_context():  # Ensure app context for URL generation
         stop_event.clear()
         for i in range(60):
+            print(i)
             if stop_event.is_set():
                 print("Game timer stopped.")
                 return  # Exit the thread gracefully
@@ -108,7 +112,7 @@ def start_game_timer():
 
         print("timer_game_over")
         # Notify players
-        open_valve(winner_id)
+        #open_valve(winner_id)
         socketio.emit("game_over", {
             "winner": winner_id,
             "winner_redirect": f"{url_for('winner_page')}?score={winner_score}",
@@ -232,22 +236,6 @@ def random_video(player_id):
     # Broadcast updated scores
     socketio.emit("update_scores", player_states)
 
-    # # Check for winner
-    # if player_states[player_id]["swipe_count"] >= WINNING_SCORE:
-    #     winner_id = player_id
-    #     loser_id = 2 if player_id == 1 else 1
-
-    #     # Redirect players to the respective winner/loser pages
-    #     socketio.emit("game_over", {
-    #         "winner": winner_id,
-    #         "winner_redirect": url_for('winner_page'),
-    #         "loser_redirect": url_for('loser_page')
-    #     })
-
-    #     reset_game()  # Reset game state after a win
-    #     return jsonify({"message": f"Player {player_id} wins!"})
-        
-
     # Check for swipe type from the frontend
     swipe_type = request.json.get("swipe_type", "up")  # Default to "up" for regular swipes
 
@@ -256,19 +244,6 @@ def random_video(player_id):
     video = None
     video_type = None
     print(swipe_type)
-    # if swipe_type == "up":
-    #     # Play an ad if swiping up on a bomb video
-    #     video = random.choice(ads_videos)
-    #     video_type = "ad"
-    # elif swipe_type == "down":
-    #     # Trigger an ad for the other player and ensure the next video is normal
-    #     target_player_id = 2 if player_id == 1 else 1
-    #     ad_video = random.choice(ads_videos)
-    #     video = random.choice(normal_videos_filt)
-    #     video_type = "normal"
-
-    #     # Notify the other player
-    #     socketio.emit('play_ad', {"video_url": f"/videos/ad/{ad_video}"}, room=f"player_{target_player_id}")
 
     if swipe_type == "ad":
         open_valve(player_id)
@@ -280,30 +255,18 @@ def random_video(player_id):
         
 
     elif swipe_type == "normal":
-        # Check normal_count for bomb video logic
-        #normal_count = player_states[player_id]["normal_count"]
-
-        # if normal_count < 10:
-        #     # Always serve a normal video if less than 10 consecutive normals
-        #     video = random.choice(normal_videos_filt)
-        #     video_type = "normal"
-            #player_states[player_id]["normal_count"] += 1
-        #else:
-        # 50% chance to serve a bomb video after 10 consecutive normal videos
         choice = random.random()
-        # if choice <= 0.05:
-        #     video_type = "ad"
-        #     open_valve(player_id)
-        #     #player_states[player_id]["normal_count"] = 0  # Reset normal count
         if choice < 0.1:
             video_type = "ice"
         else:
             video_type = "normal"
-            #player_states[player_id]["normal_count"] += 1
             
-    videos = get_cached_video_list(video_type)
+    videos = video_cache.get(video_type, [])
+    if not videos:
+        return jsonify({"error": f"No videos available for type: {video_type}"}), 500
     print(videos)
     videos = [v for v in videos if v != last_videos] if len(videos) > 1 else videos
+    
     video = random.choice(videos)
     last_videos.append(video)
     if len(last_videos) > 5:
@@ -320,20 +283,27 @@ def random_video(player_id):
     }, room="spectators")
 
     return jsonify({"video_url": f"/videos/{video_type}/{video}", "type": video_type})
-            
 
 @app.route('/videos/<folder>/<path:filename>')
-def serve_video(folder, filename):
-    """Serve videos from the appropriate folder."""
+def serve_hls(folder, filename):
+    """Serve HLS files (m3u8 and ts)."""
     folder_map = {
         "normal": NORMAL_VIDEOS_FOLDER,
-        "bomb": BOMB_VIDEOS_FOLDER,
         "ad": ADS_VIDEOS_FOLDER,
         "ice": ICE_VIDEOS_FOLDER,
     }
-    if folder in folder_map:
-        return send_from_directory(folder_map[folder], filename)
-    return jsonify({"error": "Invalid folder"}), 404
+    if folder not in folder_map:
+        return jsonify({"error": "Invalid folder"}), 404
+
+    file_path = os.path.join(folder_map[folder], filename)
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+
+    if filename.endswith(".m3u8"):
+        return Response(open(file_path).read(), mimetype="application/vnd.apple.mpegurl")
+    elif filename.endswith(".ts"):
+        return send_file(file_path, mimetype="video/MP2T")
+    return jsonify({"error": "Invalid file type"}), 400
 
 @app.route('/leave_game/<player_id>', methods=['POST'])
 def leave_game(player_id):
