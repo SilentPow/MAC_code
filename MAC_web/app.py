@@ -301,8 +301,8 @@ def serve_hls(folder, filename):
 
     if filename.endswith(".m3u8"):
         return Response(open(file_path).read(), mimetype="application/vnd.apple.mpegurl")
-    elif filename.endswith(".ts"):
-        return send_file(file_path, mimetype="video/MP2T")
+    elif filename.endswith(".ts") or filename.endswith(".m4s"):
+        return send_file(file_path, mimetype="video/mp4")
     return jsonify({"error": "Invalid file type"}), 400
 
 @app.route('/leave_game/<player_id>', methods=['POST'])

@@ -1,29 +1,32 @@
 #EXTM3U
-#EXT-X-VERSION:3
+#EXT-X-VERSION:7
 #EXT-X-TARGETDURATION:5
 #EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-MAP:URI="init.mp4"
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 0.ts
+Smirnoff Ice Red, White 0.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 1.ts
+Smirnoff Ice Red, White 1.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 2.ts
+Smirnoff Ice Red, White 2.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 3.ts
+Smirnoff Ice Red, White 3.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 4.ts
+Smirnoff Ice Red, White 4.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 5.ts
+Smirnoff Ice Red, White 5.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 6.ts
+Smirnoff Ice Red, White 6.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 7.ts
+Smirnoff Ice Red, White 7.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 8.ts
+Smirnoff Ice Red, White 8.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 9.ts
+Smirnoff Ice Red, White 9.m4s
 #EXTINF:5.066667,
-Smirnoff Ice Red, White 10.ts
+Smirnoff Ice Red, White 10.m4s
 #EXTINF:4.266667,
-Smirnoff Ice Red, White 11.ts
+Smirnoff Ice Red, White 11.m4s
 #EXT-X-ENDLIST

@@ -1,15 +1,18 @@
 #EXTM3U
-#EXT-X-VERSION:3
+#EXT-X-VERSION:7
 #EXT-X-TARGETDURATION:5
 #EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXT-X-INDEPENDENT-SEGMENTS
+#EXT-X-MAP:URI="init.mp4"
 #EXTINF:5.066667,
-Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff0.ts
+Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff0.m4s
 #EXTINF:5.066667,
-Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff1.ts
+Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff1.m4s
 #EXTINF:2.166667,
-Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff2.ts
+Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff2.m4s
 #EXTINF:2.900000,
-Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff3.ts
+Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff3.m4s
 #EXTINF:2.366667,
-Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff4.ts
+Smirnoff Ice _ Vodka Based Drink _ Chill beer food smirnoff4.m4s
 #EXT-X-ENDLIST
