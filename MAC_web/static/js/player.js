@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const videoPlayer = document.getElementById("video-player");
     const errorMessage = document.getElementById("error-message");
     const timeLeftElement = document.getElementById("time-left");
@@ -20,40 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const playerId = parseInt(window.location.pathname.split("/").pop());
     const socket = io();
-
-    const preloadedSegments = {};
-    const categories = ["normal", "ad", "ice"]; // Adjust categories as needed
-
-    async function preloadSegments() {
-        for (const category of categories) {
-            try {
-                // Fetch the list of m3u8 files in the category folder
-                const response = await fetch(`/videos/${category}/list`);
-                const m3u8Files = await response.json();
-    
-                preloadedSegments[category] = {}; // Initialize category segment storage
-    
-                for (const file of m3u8Files) {
-                    const m3u8Response = await fetch(`/videos/${category}/${file}`);
-                    const playlist = await m3u8Response.text();
-                    const lines = playlist.split("\n");
-                    const firstSegment = lines.find(line => line.endsWith(".ts") || line.endsWith(".m4s"));
-    
-                    if (firstSegment) {
-                        const segmentUrl = `/videos/${category}/${firstSegment}`;
-                        const segmentResponse = await fetch(segmentUrl);
-                        const segmentBlob = await segmentResponse.blob();
-                        preloadedSegments[category][file] = URL.createObjectURL(segmentBlob);
-                        console.log(`Preloaded first segment for ${category}/${file}`);
-                    }
-                }
-            } catch (error) {
-                console.error(`Error preloading segments for ${category}:`, error);
-            }
-        }
-    }
-
-    await preloadSegments(); // Preload segments on page load
 
     console.log("hey")
     let skipAdCountdown = null; // Interval for countdown timer
@@ -277,39 +243,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             videoUrl = data.video_url;
             currentVideoType = data.type;
 
-            const category = videoUrl.split("/")[2];
-            const file = videoUrl.split("/").pop();
-            console.log(`Loading video: ${videoUrl}`);
 
+            
+    
             if (Hls.isSupported()) {
                 const hls = new Hls();
                 hls.loadSource(videoUrl);
                 hls.attachMedia(videoPlayer);
-
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    // Inject preloaded segment if available
-                    if (preloadedSegments[category] && preloadedSegments[category][file]) {
-                        console.log(`Using preloaded segment for ${category}/${file}`);
-                        videoPlayer.src = preloadedSegments[category][file];
-                    }
-
                     videoPlayer.play().then(() => {
-                        videoReady = true;
+                        videoReady = true; // Allow interactions once video starts playing
                     }).catch((error) => {
                         console.error("Error playing video:", error);
                     });
                 });
-            } else if (videoPlayer.canPlayType("application/vnd.apple.mpegurl")) {
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                 videoPlayer.src = videoUrl;
                 videoPlayer.play().then(() => {
-                    videoReady = true;
+                    videoReady = true; // Allow interactions once video starts playing
                 }).catch((error) => {
                     console.error("Error playing video:", error);
                 });
             } else {
                 throw new Error("HLS is not supported in this browser.");
             }
-
     
     
             if (currentVideoType === "ad") {

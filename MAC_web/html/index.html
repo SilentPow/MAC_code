@@ -22,7 +22,11 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .button:hover {
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .button:hover:not(:disabled) {
             background-color: #1976D2;
         }
         .modal {
@@ -49,12 +53,17 @@
             font-size: 1em;
             width: 100%;
         }
+        .loading {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #555;
+        }
     </style>
 </head>
 <body>
     <h1>Welcome to the Game</h1>
-    <button class="button" onclick="openPlayerModal(1)">Player 1</button>
-    <button class="button" onclick="openPlayerModal(2)">Player 2</button>
+    <button id="player1-button" class="button" onclick="openPlayerModal(1)">Player 1</button>
+    <button id="player2-button" class="button" onclick="openPlayerModal(2)">Player 2</button>
     <button class="button" onclick="location.href='/spectator'">Spectator</button>
     <a href="/leaderboard" class="button">View Leaderboard</a>
 
@@ -63,27 +72,73 @@
         <div class="modal-content">
             <h2>Enter Your Name</h2>
             <input type="text" id="player-name" class="input" placeholder="Your Name">
-            <button class="button" onclick="submitPlayerName()">Submit</button>
+            <div>
+                <button class="button" onclick="submitPlayerName()">Submit</button>
+                <button class="button" onclick="closePlayerModal()">Cancel</button>
+            </div>
+            <div id="loading-message" class="loading"></div>
         </div>
     </div>
 
     <script>
         let selectedPlayer = null;
 
+        async function updatePlayerButtons() {
+            try {
+                const response = await fetch('/player_status');
+                const status = await response.json();
+
+                document.getElementById('player1-button').disabled = status[1];
+                document.getElementById('player2-button').disabled = status[2];
+            } catch (error) {
+                console.error("Error fetching player status:", error);
+            }
+        }
+
         function openPlayerModal(playerId) {
             selectedPlayer = playerId;
             document.getElementById('player-modal').style.display = 'flex';
         }
 
-        function submitPlayerName() {
+        function closePlayerModal() {
+            selectedPlayer = null;
+            document.getElementById('player-modal').style.display = 'none';
+        }
+
+        async function submitPlayerName() {
             const playerName = document.getElementById('player-name').value.trim();
+            const loadingMessage = document.getElementById('loading-message');
+
             if (!playerName) {
                 alert("Please enter your name.");
                 return;
             }
-            // Redirect to the player page with the name as a query parameter
-            window.location.href = `/player/${selectedPlayer}?name=${encodeURIComponent(playerName)}`;
+
+            loadingMessage.textContent = "Submitting...";
+            try {
+                const response = await fetch(`/select_player/${selectedPlayer}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ player_name: playerName })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = `/player/${selectedPlayer}?name=${encodeURIComponent(playerName)}`;
+                } else {
+                    alert(data.error);
+                    closePlayerModal();
+                }
+            } catch (error) {
+                console.error("Error selecting player:", error);
+                alert("An error occurred. Please try again.");
+            } finally {
+                loadingMessage.textContent = "";
+            }
         }
+
+        // Call this function on page load
+        window.onload = updatePlayerButtons;
     </script>
 </body>
 </html>

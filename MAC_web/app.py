@@ -27,12 +27,6 @@ ICE_VIDEOS_FOLDER = os.path.expanduser("./videos/ice")
 # Supported video formats
 SUPPORTED_FORMATS = ['mp4', 'webm', 'ogg']
 
-CATEGORY_FOLDERS = {
-    "normal": NORMAL_VIDEOS_FOLDER,
-    "ad": ADS_VIDEOS_FOLDER,
-    "ice": ICE_VIDEOS_FOLDER,
-}
-
 # Initialize video counts
 player_states = {
     1: {"name": None, "swipe_count": 0, "normal_count": 0, "last_videos": []},
@@ -56,6 +50,8 @@ def reset_game():
     game_state["player2_ready"] = False
     game_state["game_running"] = False
     print("reset_game")
+    release_player(1)
+    release_player(2)
     stop_event.set()  # Reset the stop event for the next game
 
 def get_video_list(folder):
@@ -211,6 +207,49 @@ def reset_game_route():
     reset_game()
     return jsonify({"message": "Game reset successfully."})
 
+# Track if a player is already selected
+player_selection_status = {
+    1: False,  # False means player slot is available
+    2: False
+}
+
+@app.route('/player_status', methods=['GET'])
+def player_status():
+    """Check if players are already selected."""
+    return jsonify(player_selection_status)
+
+@app.route('/select_player/<int:player_id>', methods=['POST'])
+def select_player(player_id):
+    """Mark a player as selected."""
+    if player_id not in player_selection_status:
+        return jsonify({"error": "Invalid player ID"}), 400
+
+    if player_selection_status[player_id]:
+        return jsonify({"error": f"Player {player_id} is already selected."}), 400
+
+    data = request.json
+    player_name = data.get("player_name")
+    if not player_name:
+        return jsonify({"error": "Player name is required."}), 400
+
+    # Mark the player as selected and assign the name
+    player_selection_status[player_id] = True
+    player_states[player_id]["name"] = player_name
+
+    return jsonify({"message": f"Player {player_id} selected successfully."})
+
+@app.route('/release_player/<int:player_id>', methods=['POST'])
+def release_player(player_id):
+    """Release a player slot."""
+    if player_id not in player_selection_status:
+        return jsonify({"error": "Invalid player ID"}), 400
+
+    player_selection_status[player_id] = False
+    player_states[player_id]["name"] = None
+
+    return jsonify({"message": f"Player {player_id} is now available."})
+
+
 @app.route('/winner')
 def winner_page():
     """Serve the winner page."""
@@ -290,40 +329,25 @@ def random_video(player_id):
 
     return jsonify({"video_url": f"/videos/{video_type}/{video}", "type": video_type})
 
-def list_m3u8_files(category):
-    """Return a list of all .m3u8 files in the specified category folder."""
-    if category not in CATEGORY_FOLDERS:
-        return jsonify({"error": "Invalid category"}), 404
-
-    folder_path = CATEGORY_FOLDERS[category]
-    if not os.path.exists(folder_path):
-        return jsonify({"error": "Category folder not found"}), 404
-
-    m3u8_files = [
-        f for f in os.listdir(folder_path) if f.endswith(".m3u8")
-    ]
-    return jsonify(m3u8_files)
-
 @app.route('/videos/<folder>/<path:filename>')
-def serve_hls(category, filename):
+def serve_hls(folder, filename):
     """Serve HLS files (m3u8 and ts)."""
     folder_map = {
         "normal": NORMAL_VIDEOS_FOLDER,
         "ad": ADS_VIDEOS_FOLDER,
         "ice": ICE_VIDEOS_FOLDER,
     }
-    if category not in CATEGORY_FOLDERS:
-        return jsonify({"error": "Invalid category"}), 404
+    if folder not in folder_map:
+        return jsonify({"error": "Invalid folder"}), 404
 
-    file_path = os.path.join(CATEGORY_FOLDERS[category], filename)
+    file_path = os.path.join(folder_map[folder], filename)
     if not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
 
     if filename.endswith(".m3u8"):
         return Response(open(file_path).read(), mimetype="application/vnd.apple.mpegurl")
-    elif filename.endswith(".ts") or filename.endswith(".m4s"):
-        return send_file(file_path, mimetype="video/mp4")
-
+    elif filename.endswith(".ts"):
+        return send_file(file_path, mimetype="video/MP2T")
     return jsonify({"error": "Invalid file type"}), 400
 
 @app.route('/leave_game/<player_id>', methods=['POST'])
