@@ -1,0 +1,29 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:5
+#EXT-X-MEDIA-SEQUENCE:0
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 0.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 1.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 2.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 3.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 4.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 5.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 6.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 7.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 8.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 9.ts
+#EXTINF:5.066667,
+Smirnoff Ice Red, White 10.ts
+#EXTINF:4.266667,
+Smirnoff Ice Red, White 11.ts
+#EXT-X-ENDLIST
