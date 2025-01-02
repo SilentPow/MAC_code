@@ -1,11 +1,14 @@
 from flask import Flask, render_template, jsonify, send_from_directory, request, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room
-from arduino import open_valve, close_valve
+from arduino import open_valve, close_valve, get_serial_connection, close_serial
 import time
 import threading
 import os
 import random
 import json
+import serial
+from serial.tools import list_ports
+import sys
 
 LEADERBOARD_FILE = "leaderboard.json"
 
@@ -77,12 +80,10 @@ def start_game_timer():
     with app.app_context():  # Ensure app context for URL generation
         stop_event.clear()
         for i in range(60):
-            print(stop_event.is_set())
             if stop_event.is_set():
                 print("Game timer stopped.")
                 return  # Exit the thread gracefully
             time.sleep(1)  # Wait for one second each iteration
-            print(i)
         print(game_state["game_running"])
         game_state["game_running"] = False
 
@@ -394,4 +395,28 @@ def on_join_spectator():
     print("A spectator joined the room.")
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host='0.0.0.0')
+    try:
+        socketio.run(app, debug=True, host='0.0.0.0')
+    except Exception as e:
+        close_serial()
+    finally:
+        close_serial()
+    # try:
+    #     ser = serial.Serial(arduino_port, baud_rate, timeout=1)
+    #     print(f"Connected to {arduino_port} at {baud_rate} baud.")
+
+        # Run the Flask-SocketIO applicatio
+    #socketio.run(app, debug=True, host='0.0.0.0')
+    # except serial.SerialException as e:
+    #     print(f"Error: {e}")
+    #     sys.exit(1)
+    # except KeyboardInterrupt:
+    #     print("Program interrupted by user.")
+    
+    # finally:
+    #     # Ensure the serial connection is closed
+    #     if ser and ser.is_open:
+    #         ser.close()
+    #         print("Serial connection closed.")
+
+    
