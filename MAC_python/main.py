@@ -1,6 +1,6 @@
 import tkinter as tk
-from gui import GameGUI
-from game_logic import GameLogic
+from MAC_python.gui import GameGUI
+from MAC_python.game_logic import GameLogic
 import threading
 from queue import Queue
 
