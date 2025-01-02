@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <style>
+        /* Reset and Base Styling */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2f;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin: 20px;
+            font-size: 3em;
+            color: #ff9800;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        .leaderboard-container {
+            background-color: #2e2e4f;
+            border-radius: 15px;
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #444;
+            color: #ff9800;
+            font-size: 1.2em;
+        }
+
+        tr:hover {
+            background-color: #555;
+        }
+
+        .rank {
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 1em;
+            color: white;
+            background-color: #ff5722;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #ff784e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Leaderboard</h1>
+    <div class="leaderboard-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>Score</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard">
+                <!-- Rows will be dynamically populated -->
+            </tbody>
+        </table>
+    </div>
+    <div class="button-container">
+        <a href="/" class="button">Back to Menu</a>
+    </div>
+    <script>
+        // Fetch leaderboard data from the server
+        async function fetchLeaderboard() {
+            try {
+                const response = await fetch('/leaderboard_data'); // Endpoint to fetch leaderboard data
+                if (!response.ok) {
+                    throw new Error('Failed to fetch leaderboard data');
+                }
+
+                const data = await response.json();
+                const leaderboard = data[0].leaderboard;
+
+                const leaderboardTable = document.getElementById('leaderboard');
+                leaderboardTable.innerHTML = ''; // Clear any existing rows
+
+                leaderboard.forEach(player => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="rank">${player.rank}</td>
+                        <td>${player.player_name}</td>
+                        <td>${player.score}</td>
+                        <td>${new Date(player.timestamp).toLocaleDateString()} ${new Date(player.timestamp).toLocaleTimeString()}</td>
+                    `;
+                    leaderboardTable.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                const leaderboardTable = document.getElementById('leaderboard');
+                leaderboardTable.innerHTML = '<tr><td colspan="4">Failed to load leaderboard</td></tr>';
+            }
+        }
+
+        // Load leaderboard when the page is loaded
+        document.addEventListener('DOMContentLoaded', fetchLeaderboard);
+    </script>
+</body>
+</html>

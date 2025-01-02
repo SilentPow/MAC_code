@@ -1,0 +1,127 @@
+html {
+    overscroll-behavior-x: none;
+  }
+
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    height: 100vh;
+    overscroll-behavior-x: none;
+}
+
+#video-container {
+    position: relative;
+    width: 100vw; /* Full width of the viewport */
+    height: 177.78vw; /* 9:16 ratio, height = width * (16 / 9) */
+    max-height: 100vh; /* Prevent overflow on very tall screens */
+    max-width: calc(100vh * 9 / 16); /* Keep aspect ratio consistent */
+    overflow: hidden; /* Crop the video if it overflows */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+video {
+    position: absolute;
+    width: auto;
+    height: 100%; /* Fill the container's height */
+    min-width: 100%; /* Ensure full coverage, cropping as necessary */
+    min-height: 100%; /* Ensure full coverage, cropping as necessary */
+    object-fit: cover; /* Crop and center the video */
+    background-color: black;
+}
+
+#error-message {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    top: 10%;
+    text-align: center;
+    display: none;
+}
+
+#ice-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    display: none; /* Initially hidden */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#ice-drink-button {
+    margin-bottom: 20px;
+    padding: 15px 30px;
+    font-size: 20px;
+    background-color: white;
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#ice-drink-button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+#ice-message {
+    color: red;
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.5;
+}
+
+
+
+#skip-ad-button {
+    position: absolute;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.8);
+    border: 2px solid white;
+    border-radius: 10px;
+    cursor: not-allowed; /* Initially unclickable */
+    z-index: 1000;
+    display: none; /* Hidden by default */
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+#skip-ad-button[disabled] {
+    opacity: 0.5; /* Make the button look inactive */
+}
+
+#skip-ad-button:not([disabled]):hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: black;
+    transform: scale(1.1);
+}
+
+
+#scoreboard {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+}
+
+#leave-game img {
+    width: 40px;
+    height: 40px;
+}

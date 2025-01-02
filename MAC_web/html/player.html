@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player {{ player_id }}</title>
+    <link rel="stylesheet" href="/static/css/player.css">
+</head>
+<body>
+    <div id="video-container">
+        <video id="video-player" autoplay muted playsinline></video>
+        <div id="error-message">Failed to load video. Please try again.</div>
+        <button id="skip-ad-button" style="display: none;">Skip Ad</button>
+    </div>
+
+    <div id="game-timer" style="position: absolute; top: 10px; right: 10px; color: white; font-size: 20px; background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px;">
+        Time Left: <span id="time-left">60</span>s
+    </div>
+
+    <!-- Winner/Loser Screen -->
+    <div id="winner-loser-container" style="display: none; text-align: center;"></div>
+
+    <!-- Ice Message -->
+    <div id="ice-container" style="display: none;">
+        <button id="ice-drink-button" disabled>I drank</button>
+        <div id="ice-message">Nonono you saw the ice don't try to skip it, drink up buddy</div>
+    </div>
+
+    <!-- Arrow to leave the game -->
+    <div id="leave-game" style="position: absolute; top: 10px; left: 10px; cursor: pointer;">
+        <img src="/static/images/left-arrow.png" alt="Leave Game">
+    </div>
+
+    <div id="scoreboard">
+        <p id="player1-score">Player 1: 0</p>
+        <p id="player2-score">Player 2: 0</p>
+        <p id="winner-message" style="display: none;"></p>
+    </div>
+
+    <!-- Include Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+
+    <!-- Include the player-specific JavaScript -->
+    <script src="/static/js/player.js"></script>
+</body>
+</html>

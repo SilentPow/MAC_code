@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectator Mode</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .player-container {
+            width: 360px; /* Typical phone width in pixels */
+            height: 640px; /* Typical phone height in pixels */
+            background-color: #222;
+            border: 2px solid white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .player-title {
+            margin-bottom: 10px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="player-container" id="player1-container">
+        <div class="player-title">Player 1</div>
+        <video id="player1-video" autoplay muted playsinline></video>
+    </div>
+    <div class="player-container" id="player2-container">
+        <div class="player-title">Player 2</div>
+        <video id="player2-video" autoplay muted playsinline></video>
+    </div>
+
+    <!-- Include Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const player1Video = document.getElementById("player1-video");
+            const player2Video = document.getElementById("player2-video");
+            const socket = io();
+
+            // Join the spectator room
+            socket.emit("join_spectator");
+
+            // Update videos when players play videos
+            socket.on("update_video", (data) => {
+                const targetVideo = data.player_id === 1 ? player1Video : player2Video;
+                targetVideo.src = data.video_url;
+                targetVideo.load();
+                targetVideo.play().catch((err) => console.error("Error playing video:", err));
+            });
+        });
+    </script>
+</body>
+</html>

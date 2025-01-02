@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .button {
+            padding: 15px 30px;
+            margin: 20px;
+            font-size: 1.2em;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #1976D2;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+        .input {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1em;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Game</h1>
+    <button class="button" onclick="openPlayerModal(1)">Player 1</button>
+    <button class="button" onclick="openPlayerModal(2)">Player 2</button>
+    <button class="button" onclick="location.href='/spectator'">Spectator</button>
+    <a href="/leaderboard" class="button">View Leaderboard</a>
+
+    <!-- Modal -->
+    <div id="player-modal" class="modal">
+        <div class="modal-content">
+            <h2>Enter Your Name</h2>
+            <input type="text" id="player-name" class="input" placeholder="Your Name">
+            <button class="button" onclick="submitPlayerName()">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPlayer = null;
+
+        function openPlayerModal(playerId) {
+            selectedPlayer = playerId;
+            document.getElementById('player-modal').style.display = 'flex';
+        }
+
+        function submitPlayerName() {
+            const playerName = document.getElementById('player-name').value.trim();
+            if (!playerName) {
+                alert("Please enter your name.");
+                return;
+            }
+            // Redirect to the player page with the name as a query parameter
+            window.location.href = `/player/${selectedPlayer}?name=${encodeURIComponent(playerName)}`;
+        }
+    </script>
+</body>
+</html>
