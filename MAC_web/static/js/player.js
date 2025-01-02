@@ -30,15 +30,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Fetch the list of m3u8 files in the category folder
                 const response = await fetch(`/videos/${category}/list`);
                 const m3u8Files = await response.json();
-
+    
                 preloadedSegments[category] = {}; // Initialize category segment storage
-
+    
                 for (const file of m3u8Files) {
                     const m3u8Response = await fetch(`/videos/${category}/${file}`);
                     const playlist = await m3u8Response.text();
                     const lines = playlist.split("\n");
-                    const firstSegment = lines.find(line => line.endsWith(".m4s") || line.endsWith(".ts"));
-
+                    const firstSegment = lines.find(line => line.endsWith(".ts") || line.endsWith(".m4s"));
+    
                     if (firstSegment) {
                         const segmentUrl = `/videos/${category}/${firstSegment}`;
                         const segmentResponse = await fetch(segmentUrl);

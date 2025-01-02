@@ -290,7 +290,6 @@ def random_video(player_id):
 
     return jsonify({"video_url": f"/videos/{video_type}/{video}", "type": video_type})
 
-@app.route('/videos/<category>/list', methods=['GET'])
 def list_m3u8_files(category):
     """Return a list of all .m3u8 files in the specified category folder."""
     if category not in CATEGORY_FOLDERS:
@@ -306,24 +305,25 @@ def list_m3u8_files(category):
     return jsonify(m3u8_files)
 
 @app.route('/videos/<folder>/<path:filename>')
-def serve_hls(folder, filename):
+def serve_hls(category, filename):
     """Serve HLS files (m3u8 and ts)."""
     folder_map = {
         "normal": NORMAL_VIDEOS_FOLDER,
         "ad": ADS_VIDEOS_FOLDER,
         "ice": ICE_VIDEOS_FOLDER,
     }
-    if folder not in folder_map:
-        return jsonify({"error": "Invalid folder"}), 404
+    if category not in CATEGORY_FOLDERS:
+        return jsonify({"error": "Invalid category"}), 404
 
-    file_path = os.path.join(folder_map[folder], filename)
+    file_path = os.path.join(CATEGORY_FOLDERS[category], filename)
     if not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
 
     if filename.endswith(".m3u8"):
         return Response(open(file_path).read(), mimetype="application/vnd.apple.mpegurl")
-    elif filename.endswith(".ts"):
-        return send_file(file_path, mimetype="video/MP2T")
+    elif filename.endswith(".ts") or filename.endswith(".m4s"):
+        return send_file(file_path, mimetype="video/mp4")
+
     return jsonify({"error": "Invalid file type"}), 400
 
 @app.route('/leave_game/<player_id>', methods=['POST'])
