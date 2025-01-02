@@ -108,6 +108,7 @@ def start_game_timer():
 
         print("timer_game_over")
         # Notify players
+        open_valve(winner_id)
         socketio.emit("game_over", {
             "winner": winner_id,
             "winner_redirect": f"{url_for('winner_page')}?score={winner_score}",
@@ -357,6 +358,8 @@ def leave_game(player_id):
 
         update_leaderboard(winner_name, winner_score)
         update_leaderboard(loser_name, loser_score)
+
+        
         socketio.emit("game_over", {
             "winner": winner_id,
             "winner_redirect": f"{url_for('winner_page')}?score={winner_score}",
@@ -384,9 +387,15 @@ def on_join(data):
     if (game_state["player1_ready"] == True and game_state["player2_ready"] == True) and not game_state["game_running"]:
         game_state["game_running"] = True
         print("Both players are ready. Starting the game.")
-        socketio.emit("game_start")  # Notify players that the game has started
-        print("game_start event sent")
-        threading.Thread(target=start_game_timer).start()
+        socketio.emit("countdown_start", {"countdown": 3})  # Notify players to show countdown
+        threading.Timer(3, start_game).start()  # Delay starting the game by 3 seconds
+
+def start_game():
+    """Start the game after the countdown."""
+    game_state["game_running"] = True
+    print("Game started.")
+    socketio.emit("game_start")  # Notify players that the game has started
+    threading.Thread(target=start_game_timer).start()
 
 @socketio.on('join_spectator')
 def on_join_spectator():
@@ -401,22 +410,3 @@ if __name__ == '__main__':
         close_serial()
     finally:
         close_serial()
-    # try:
-    #     ser = serial.Serial(arduino_port, baud_rate, timeout=1)
-    #     print(f"Connected to {arduino_port} at {baud_rate} baud.")
-
-        # Run the Flask-SocketIO applicatio
-    #socketio.run(app, debug=True, host='0.0.0.0')
-    # except serial.SerialException as e:
-    #     print(f"Error: {e}")
-    #     sys.exit(1)
-    # except KeyboardInterrupt:
-    #     print("Program interrupted by user.")
-    
-    # finally:
-    #     # Ensure the serial connection is closed
-    #     if ser and ser.is_open:
-    #         ser.close()
-    #         print("Serial connection closed.")
-
-    

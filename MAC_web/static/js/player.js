@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const iceContainer = document.getElementById("ice-container"); // Container for the ice elements
     const iceMessage = document.getElementById("ice-message");     // Text for the ice warning
     const iceDrinkButton = document.getElementById("ice-drink-button"); // Button to confirm drinking
+    const countdownTimer = document.getElementById("countdown-timer");
+    const countdownNumber = document.getElementById("countdown-number");
 
     const playerName = new URLSearchParams(window.location.search).get('name');
     const playerInfo = document.getElementById("player-info");
@@ -53,6 +55,22 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Game started!");
         startGameTimer(); // Start the timer when the game begins
         gameRunning = true;
+    });
+
+    socket.on("countdown_start", (data) => {
+        let countdown = data.countdown;
+        countdownTimer.style.display = "block"; // Show the countdown timer
+        countdownNumber.textContent = countdown;
+    
+        const interval = setInterval(() => {
+            countdown -= 1;
+            countdownNumber.textContent = countdown;
+    
+            if (countdown <= 0) {
+                clearInterval(interval);
+                countdownTimer.style.display = "none"; // Hide the countdown timer
+            }
+        }, 1000);
     });
 
     function updateSkipAdButton() {
